@@ -22,12 +22,15 @@ public class AdminController {
 
     @PostMapping("/register")
     public ResponseEntity<String> registerAdmin(@RequestBody UserDto userDto) {
+
+        System.out.println(userDto);
         return adminService.registerAdmin(userDto);
     }
 
 
     @PostMapping("/login")
     public ResponseEntity<String> loginAdmin(@RequestBody LoginDto loginRequest) {
+        System.out.println(loginRequest);
         String jwtToken = adminService.loginAdmin(loginRequest);
         return ResponseEntity.ok(jwtToken);
     }

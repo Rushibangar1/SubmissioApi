@@ -43,14 +43,22 @@ public class SecurityConfig  {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable()
+        http.csrf().disable()  // Disable CSRF (needed for POST requests with JWT)
                 .authorizeRequests()
-                .requestMatchers("/api/users/register", "/api/admin/login").permitAll()
-                .requestMatchers("/api/users/**").hasRole("USER")
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .anyRequest().authenticated()
-                .and()
+                // Permit all for the register and login endpoints for both users and admins
+                .requestMatchers("/api/users/register", "/api/admin/register", "/api/users/login", "/api/admin/login").permitAll()
 
+                // User-related endpoints - only authenticated users with the USER role
+                .requestMatchers("/api/users/upload-assignment", "/api/users/assignments").hasRole("USER")
+
+                // Admin-related endpoints - only authenticated users with the ADMIN role
+                .requestMatchers("/api/admin/assignments", "/api/admin/assignments/accept/**", "/api/admin/assignments/reject/**").hasRole("ADMIN")
+
+                // All other requests need authentication (including any other endpoints under /api/users or /api/admin)
+                .anyRequest().authenticated()
+
+                .and()
+                // Add the custom JWT authentication filter after permitAll()
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
